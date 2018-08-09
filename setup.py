@@ -5,13 +5,13 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="py-solc-simple",
-    version="0.0.4",
+    version="0.0.5",
     author="Paul Peregud",
     author_email="paulperegud@gmail.com",
     description="Simple wrapper around py-solc. Needs solc binary in PATH",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/paulperegud/py-solc-wrapper",
+    url="https://github.com/paulperegud/py_solc_simple",
     packages=setuptools.find_packages(),
     classifiers=(
         'Intended Audience :: Developers',
