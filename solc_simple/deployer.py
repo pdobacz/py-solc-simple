@@ -5,6 +5,10 @@ from web3.contract import ConciseContract
 from web3 import Web3, HTTPProvider
 
 
+"""
+Created by Kelvin Fichter. Code lifted from omisego/plasma-contracts by Paul Peregud and moved into separate package.
+"""
+
 class Deployer(object):
 
     def __init__(self, contracts_dir, output_dir, provider=HTTPProvider('http://localhost:8545')):
