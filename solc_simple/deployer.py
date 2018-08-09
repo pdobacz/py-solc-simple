@@ -148,3 +148,17 @@ class Deployer(object):
         contract_instance = self.w3.eth.contract(abi=abi, address=address)
 
         return ConciseContract(contract_instance) if concise else contract_instance
+
+
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Compiles solidity contracts. Can also be used as a library.')
+    parser.add_argument('-o', '--out_dir', required=True,
+                        help='output directory (will be created if needed)')
+    parser.add_argument('-i', '--input_dir', required=True,
+                        help='input directory (will be recursively crawled)')
+    args = parser.parse_args()
+
+    deployer = Deployer(args.input_dir, args.out_dir)
+    deployer.compile_all()
