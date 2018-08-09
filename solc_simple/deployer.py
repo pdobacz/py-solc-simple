@@ -77,8 +77,7 @@ class Deployer(object):
                 with open(contract_data_path, "w+") as contract_data_file:
                     json.dump(contract_data, contract_data_file)
 
-    @staticmethod
-    def get_contract_data(contract_name):
+    def get_contract_data(self, contract_name):
         """Returns the contract data for a given contract
 
         Args:
