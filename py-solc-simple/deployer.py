@@ -5,13 +5,11 @@ from web3.contract import ConciseContract
 from web3 import Web3, HTTPProvider
 
 
-OUTPUT_DIR = 'contract_data'
-
-
 class Deployer(object):
 
-    def __init__(self, contracts_dir, provider=HTTPProvider('http://localhost:8545')):
+    def __init__(self, contracts_dir, output_dir, provider=HTTPProvider('http://localhost:8545')):
         self.contracts_dir = contracts_dir
+        self.output_dir = output_dir
         self.w3 = Web3(provider)
 
     def get_solc_input(self):
@@ -52,9 +50,9 @@ class Deployer(object):
         return solc_input
 
     def compile_all(self):
-        """Compiles all of the contracts in the /contracts directory
+        """Compiles all of the contracts in the self.contracts_dir directory
 
-        Creates {contract name}.json files in /build that contain
+        Creates {contract name}.json files in self.output_dir that contain
         the build output for each contract.
         """
 
@@ -62,10 +60,11 @@ class Deployer(object):
         solc_input = self.get_solc_input()
 
         # Compile the contracts
-        compilation_result = compile_standard(solc_input, allow_paths=self.contracts_dir)
+        real_path = os.path.realpath(self.contracts_dir)
+        compilation_result = compile_standard(solc_input, allow_paths=real_path)
 
         # Create the output folder if it doesn't already exist
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        os.makedirs(self.output_dir, exist_ok=True)
 
         # Write the contract ABI to output files
         compiled_contracts = compilation_result['contracts']
@@ -74,7 +73,7 @@ class Deployer(object):
                 contract_name = contract.split('.')[0]
                 contract_data = compiled_contracts[contract_file][contract_name]
 
-                contract_data_path = OUTPUT_DIR + '/{0}.json'.format(contract_name)
+                contract_data_path = self.output_dir + '/{0}.json'.format(contract_name)
                 with open(contract_data_path, "w+") as contract_data_file:
                     json.dump(contract_data, contract_data_file)
 
@@ -89,7 +88,7 @@ class Deployer(object):
             str, str: ABI and bytecode of the contract
         """
 
-        contract_data_path = OUTPUT_DIR + '/{0}.json'.format(contract_name)
+        contract_data_path = self.output_dir + '/{0}.json'.format(contract_name)
         with open(contract_data_path, 'r') as contract_data_file:
             contract_data = json.load(contract_data_file)
 
