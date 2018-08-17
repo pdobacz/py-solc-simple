@@ -3,6 +3,7 @@ import os
 from solc import compile_standard
 from web3.contract import ConciseContract
 from web3 import Web3, HTTPProvider
+from pathlib import Path
 
 
 """
@@ -25,12 +26,20 @@ class Deployer(object):
             dict: A Solidity input JSON object as a dict
         """
 
+        def legal(r, file_name):
+            hidden = file_name[0] == '.'
+            dotsol = len(file_name) > 3 and file_name[-4:] == '.sol'
+            path = os.path.realpath(os.path.join(r, file_name))
+            notfile = not os.path.isfile(path)
+            symlink = Path(path).is_symlink()
+            return dotsol and (not (symlink or hidden or notfile))
+
         solc_input = {
             'language': 'Solidity',
             'sources': {
                 file_name: {
                     'urls': [os.path.realpath(os.path.join(r, file_name))]
-                } for r, d, f in os.walk(self.contracts_dir) for file_name in f
+                } for r, d, f in os.walk(self.contracts_dir) for file_name in f if legal(r, file_name)
             },
             'settings': {
                 'outputSelection': {
