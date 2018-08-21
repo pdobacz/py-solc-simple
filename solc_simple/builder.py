@@ -1,8 +1,6 @@
 import json
 import os
 from solc import compile_standard
-from web3.contract import ConciseContract
-from web3 import Web3, HTTPProvider
 from pathlib import Path
 
 
@@ -10,12 +8,11 @@ from pathlib import Path
 Created by Kelvin Fichter. Code lifted from omisego/plasma-contracts by Paul Peregud and moved into separate package.
 """
 
-class Deployer(object):
+class Builder(object):
 
-    def __init__(self, contracts_dir, output_dir, provider=HTTPProvider('http://localhost:8545')):
+    def __init__(self, contracts_dir, output_dir):
         self.contracts_dir = contracts_dir
         self.output_dir = output_dir
-        self.w3 = Web3(provider)
 
     def get_solc_input(self):
         """Walks the contract directory and returns a Solidity input dict
@@ -29,7 +26,7 @@ class Deployer(object):
         def legal(r, file_name):
             hidden = file_name[0] == '.'
             dotsol = len(file_name) > 3 and file_name[-4:] == '.sol'
-            path = os.path.realpath(os.path.join(r, file_name))
+            path = os.path.normpath(os.path.join(r, file_name))
             notfile = not os.path.isfile(path)
             symlink = Path(path).is_symlink()
             return dotsol and (not (symlink or hidden or notfile))
@@ -109,59 +106,6 @@ class Deployer(object):
 
         return abi, bytecode
 
-    def deploy_contract(self, contract_name, gas=5000000, args=(), concise=True):
-        """Deploys a contract to the given Ethereum network using Web3
-
-        Args:
-            contract_name (str): Name of the contract to deploy. Must already be compiled.
-            provider (HTTPProvider): The Web3 provider to deploy with.
-            gas (int): Amount of gas to use when creating the contract.
-            args (obj): Any additional arguments to include with the contract creation.
-            concise (bool): Whether to return a Contract or ConciseContract instance.
-
-        Returns:
-            Contract: A Web3 contract instance.
-        """
-
-        abi, bytecode = self.get_contract_data(contract_name)
-
-        contract = self.w3.eth.contract(abi=abi, bytecode=bytecode)
-
-        # Get transaction hash from deployed contract
-        tx_hash = contract.deploy(transaction={
-            'from': self.w3.eth.accounts[0],
-            'gas': gas
-        }, args=args)
-
-        # Get tx receipt to get contract address
-        tx_receipt = self.w3.eth.getTransactionReceipt(tx_hash)
-        contract_address = tx_receipt['contractAddress']
-
-        contract_instance = self.w3.eth.contract(address=contract_address, abi=abi)
-
-        print("Successfully deployed {0} contract!".format(contract_name))
-
-        return ConciseContract(contract_instance) if concise else contract_instance
-
-    def get_contract_at_address(self, contract_name, address, concise=True):
-        """Returns a Web3 instance of the given contract at the given address
-
-        Args:
-            contract_name (str): Name of the contract. Must already be compiled.
-            address (str): Address of the contract.
-            concise (bool): Whether to return a Contract or ConciseContract instance.
-
-        Returns:
-            Contract: A Web3 contract instance.
-        """
-
-        abi, _ = self.get_contract_data(contract_name)
-
-        contract_instance = self.w3.eth.contract(abi=abi, address=address)
-
-        return ConciseContract(contract_instance) if concise else contract_instance
-
-
 def main():
     import argparse
 
@@ -172,5 +116,5 @@ def main():
                         help='input directory (will be recursively crawled)')
     args = parser.parse_args()
 
-    deployer = Deployer(args.input_dir, args.out_dir)
-    deployer.compile_all()
+    builder = Builder(args.input_dir, args.out_dir)
+    builder.compile_all()

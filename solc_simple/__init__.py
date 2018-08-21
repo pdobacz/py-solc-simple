@@ -1,7 +1,7 @@
 import sys
 
-from .deployer import (
-    Deployer,
+from .builder import (
+    Builder,
     main
 )
 
