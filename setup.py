@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="py-solc-simple",
-    version="0.0.9",
+    version="0.0.10",
     author="Paul Peregud",
     author_email="paulperegud@gmail.com",
     description="Simple wrapper around py-solc. Needs solc binary in PATH",
@@ -23,7 +23,6 @@ setuptools.setup(
         'console_scripts': ['py-solc-simple=solc_simple.builder:main'],
     },
     install_requires=[
-        'web3==4.5.0',
         'py-solc==3.1.0'
     ]
 )
