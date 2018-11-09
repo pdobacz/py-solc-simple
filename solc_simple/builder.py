@@ -39,6 +39,10 @@ class Builder(object):
                 } for r, d, f in os.walk(self.contracts_dir) for file_name in f if legal(r, file_name)
             },
             'settings': {
+                'optimizer': {
+                    'enabled': 1,
+                    'runs': 10000
+                },
                 'outputSelection': {
                     "*": {
                         "": [
